@@ -32,7 +32,7 @@ public class CityService {
 	}
 
 	public List<City> getAll() {
-		List<City> cities = new ArrayList<City>();
+		List<City> cities = new ArrayList<>();
 		cityRepository.findAll().forEach(city -> {
 			city.setFahrenheit((city.getWeather() * 9/5) + 32);
 			cities.add(city);
