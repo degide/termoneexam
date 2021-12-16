@@ -26,36 +26,26 @@ public class CityControllerIntegrationTest {
     @Autowired
     private TestRestTemplate testRestTemplate;
 
-    @MockBean
-    private CityService cityServiceMock;
-
     @Test
     public void getAll_success() throws Exception {
-        List<City> cities = Arrays.asList(
-                new City(101,"Kigali",24),
-                new City(102,"Musanze",18),
-                new City(103,"Rubavu",20)
-        );
-        when(cityServiceMock.getAll()).thenReturn(cities);
-        ResponseEntity<?> response = testRestTemplate.getForEntity("/api/cities/all", List.class);
+        ResponseEntity<City[]> response = testRestTemplate.getForEntity("/api/cities/all", City[].class);
+        List<City> cities = Arrays.asList(Objects.requireNonNull(response.getBody()));
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals(3, ((List) Objects.requireNonNull(response.getBody())).size());
+        assertEquals(4, cities.size());
     }
 
     @Test
     public void add_success(){
-        when(cityServiceMock.existsByName(any(String.class))).thenReturn(false);
-        when(cityServiceMock.save(any(CreateCityDTO.class))).thenReturn(new City(101,"Kigali",24));
         ResponseEntity<City> response = testRestTemplate.postForEntity("/api/cities/add", new CreateCityDTO(
-            "Kigali", 24
+                "Gisenyi", 21
         ), City.class);
+        System.out.println(response);
         assertEquals(201, response.getStatusCodeValue());
-        assertEquals(101, Objects.requireNonNull(response.getBody()).getId());
+        assertEquals("Gisenyi", Objects.requireNonNull(response.getBody()).getName());
     }
 
     @Test
     public void add_exists(){
-        when(cityServiceMock.existsByName("Kigali")).thenReturn(true);
         ResponseEntity<APICustomResponse> response = testRestTemplate.postForEntity("/api/cities/add", new CreateCityDTO(
                 "Kigali", 24
         ), APICustomResponse.class);
@@ -65,7 +55,6 @@ public class CityControllerIntegrationTest {
 
     @Test
     public void getById_success(){
-        when(cityServiceMock.getById(any(long.class))).thenReturn(Optional.of(new City(101,"Kigali",24)));
         ResponseEntity<City> response = testRestTemplate.getForEntity("/api/cities/id/101", City.class);
         assertEquals(200, response.getStatusCodeValue());
         assertEquals(101, Objects.requireNonNull(response.getBody()).getId());
@@ -73,10 +62,9 @@ public class CityControllerIntegrationTest {
 
     @Test
     public void getById_notFound(){
-        when(cityServiceMock.getById(106L)).thenReturn(Optional.empty());
-        ResponseEntity<APICustomResponse> response = testRestTemplate.getForEntity("/api/cities/id/106", APICustomResponse.class);
+        ResponseEntity<APICustomResponse> response = testRestTemplate.getForEntity("/api/cities/id/109", APICustomResponse.class);
         assertEquals(404, response.getStatusCodeValue());
         assertFalse(Objects.requireNonNull(response.getBody()).isStatus());
-        assertEquals("City not found with id 106", Objects.requireNonNull(response.getBody()).getMessage());
+        assertEquals("City not found with id 109", Objects.requireNonNull(response.getBody()).getMessage());
     }
 }
