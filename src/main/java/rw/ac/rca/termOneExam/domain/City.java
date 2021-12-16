@@ -29,6 +29,11 @@ public class City {
 		this.weather = weather;
 	}
 
+	public City(long id, String name, double weather) {
+		this.id = id;
+		this.name = name;
+		this.weather = weather;
+	}
 
 	public City(long id, String name, double weather, double fahrenheit) {
 		super();
